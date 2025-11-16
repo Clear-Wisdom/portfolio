@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { gsap } from "gsap";
 import CardNav from "./components/CardNav";
 import MarkdownRenderer from "./components/MarkdownRenderer";
 import GradientPressureText from "./components/GradientPressureText";
+import Lanyard from "./components/Lanyard";
 
 // 마크다운 파일 임포트
 import aboutMd from "./content/about.md?raw";
@@ -17,8 +18,13 @@ function Portfolio() {
     const navRef = useRef(null);
     const hintRef = useRef(null);
     const navigate = useNavigate();
+    const navigateRef = useRef(navigate);
     const location = useLocation();
     const prevLocationRef = useRef(location.pathname);
+
+    useEffect(() => {
+        navigateRef.current = navigate;
+    }, [navigate]);
 
     useEffect(() => {
         // 홈페이지에서만 초기 애니메이션 실행
@@ -88,7 +94,7 @@ function Portfolio() {
                 // 3초 후 힌트 메시지 서서히 사라지기
                 gsap.to(hintRef.current, {
                     opacity: 0,
-                    duration: 1,
+                    duration: 2,
                     delay: 3,
                     ease: "power2.inOut",
                 });
@@ -117,38 +123,41 @@ function Portfolio() {
         }
     };
 
-    const menuItems = [
-        {
-            label: "About Me",
-            bgColor: "#e0f2fe",
-            textColor: "#0c4a6e",
-            onClick: () => navigate("/aboutme"),
-            links: [
-                { label: "자기소개" },
-                { label: "기술스택" },
-            ],
-        },
-        {
-            label: "Projects",
-            bgColor: "#fce7f3",
-            textColor: "#831843",
-            onClick: () => navigate("/projects"),
-            links: [
-                { label: "프로젝트 목록" },
-                { label: "연도별 활동" },
-            ],
-        },
-        {
-            label: "Contact",
-            bgColor: "#fef3c7",
-            textColor: "#78350f",
-            onClick: () => navigate("/contact"),
-            links: [
-                { label: "이메일" },
-                { label: "GitHub" },
-            ],
-        },
-    ];
+    const menuItems = useMemo(
+        () => [
+            {
+                label: "About Me",
+                bgColor: "#e0f2fe",
+                textColor: "#0c4a6e",
+                onClick: () => navigateRef.current("/aboutme"),
+                links: [
+                    { label: "Self introduction" },
+                    { label: "Skills" },
+                ],
+            },
+            {
+                label: "Projects",
+                bgColor: "#fce7f3",
+                textColor: "#831843",
+                onClick: () => navigateRef.current("/projects"),
+                links: [
+                    { label: "Projects / Activities" },
+                    { label: "Year-by-year" },
+                ],
+            },
+            {
+                label: "Contact",
+                bgColor: "#fef3c7",
+                textColor: "#78350f",
+                onClick: () => navigateRef.current("/contact"),
+                links: [
+                    { label: "Email" },
+                    { label: "GitHub" },
+                ],
+            },
+        ],
+        []
+    );
 
     // 현재 경로에 따라 콘텐츠 결정
     const getContent = () => {
@@ -168,7 +177,7 @@ function Portfolio() {
 
     return (
         <div
-            className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+            className="min-h-screen"
             onClick={handleShowMenu}
         >
             {/* CardNav 메뉴 - 최상단 고정 */}
@@ -223,9 +232,12 @@ function Portfolio() {
                 </div>
             )}
 
+            {/* About Me 페이지에서만 Lanyard 표시 */}
+            {location.pathname === "/aboutme" && <Lanyard />}
+
             {/* 메인 콘텐츠 - 라우트에 따라 표시 */}
             {content && (
-                <main className="max-w-4xl mx-auto px-4 py-24 mt-20">
+                <main className={`max-w-4xl mx-auto px-4 py-24 ${location.pathname === "/aboutme" ? "mt-[500px]" : "mt-20"}`}>
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-8">
                         <MarkdownRenderer content={content} />
                     </div>

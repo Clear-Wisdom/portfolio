@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(to bottom right, #f8fafc, #dbeafe, #e0e7ff);
+  background-attachment: fixed;
+}
+
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
